@@ -1,0 +1,709 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <!--
+    Al Taqwa Online University
+    - Mobile-first responsive single-file HTML + CSS + minimal JS
+    - Brand colors: primary #1a472a (deep forest green), secondary #2e8b57 (sea-green)
+    - Light background #f8f9fa, body text #333
+    - Notes: comments are provided before each major block to explain purpose and allow edits.
+  -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Al Taqwa Online University — online Islamic academy combining faith, knowledge, and innovation. Courses in Quran, Tajweed, Islamic studies, and more.">
+  <title>Al Taqwa Online University</title>
+  <!-- Favicon (optional): Add your favicon link here -->
+  <style>
+    /* ================================
+       Base & Mobile-First Styles
+       - Font, color variables, resets
+       - Designed to be clean and fast-loading
+       ================================ */
+    :root{
+      --primary: #1a472a; /* deep forest green */
+      --secondary: #2e8b57; /* sea-green */
+      --bg: #f8f9fa; /* off-white */
+      --text: #333;
+      --muted: #6c757d;
+      --card-shadow: 0 6px 18px rgba(26,71,42,0.08);
+      --card-shadow-strong: 0 12px 30px rgba(26,71,42,0.12);
+      --radius: 12px;
+      --max-width: 1100px;
+      --safe-gap: 20px;
+    }
+
+    /* Reset-ish */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      line-height:1.45;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    a{color:var(--secondary); text-decoration:none}
+    img{max-width:100%;display:block}
+
+    .container{width:100%;max-width:var(--max-width);margin:0 auto;padding:16px}
+
+    /* ================================
+       Header (logo + title + hamburger)
+       - Mobile-first layout ensures title never wraps and stays between logo & hamburger
+       - Uses clamp() to reduce font-size on very small screens so the title doesn't break
+       ================================ */
+    header.site-header{
+      position:sticky;top:0;z-index:60;background:rgba(248,249,250,0.9);
+      backdrop-filter: blur(6px);
+      border-bottom:1px solid rgba(0,0,0,0.03);
+    }
+    .nav-row{display:flex;align-items:center;gap:12px;padding:10px 16px}
+    .brand{display:flex;align-items:center;gap:12px;flex:1 1 auto;min-width:0}
+    .brand .logo{
+      flex:0 0 44px;height:44px;border-radius:50%;overflow:hidden;box-shadow:var(--card-shadow);
+      background:linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.03));
+    }
+    .brand .logo img{width:44px;height:44px;object-fit:cover}
+
+    /* The academy name must always remain between the logo and the hamburger and not wrap.
+       We use white-space:nowrap and clamp for font-size so it scales rather than breaks.
+    */
+    .site-title{
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1 1 auto;min-width:0;
+      font-weight:700;color:var(--primary);font-size:clamp(16px,4.4vw,20px);
+    }
+
+    /* Hamburger button on the far right */
+    .hamburger{
+      background:transparent;border:0;padding:8px;border-radius:8px;cursor:pointer;flex:0 0 auto;
+      display:flex;align-items:center;justify-content:center;
+    }
+    .hamburger:focus{outline:2px solid var(--secondary)}
+    .hamburger .bar{width:22px;height:2px;background:var(--text);display:block;position:relative}
+    .hamburger .bar::before,.hamburger .bar::after{content:"";position:absolute;left:0;width:22px;height:2px;background:var(--text)}
+    .hamburger .bar::before{top:-7px}
+    .hamburger .bar::after{top:7px}
+
+    /* Mobile nav (drawer) */
+    nav.mobile-nav{position:fixed;inset:0;z-index:50;pointer-events:none}
+    nav.mobile-nav .nav-panel{position:absolute;right:12px;top:64px;background:white;border-radius:12px;padding:12px;min-width:200px;box-shadow:var(--card-shadow);transform:translateY(-8px);opacity:0;transition:all .22s;pointer-events:auto}
+    nav.mobile-nav.open .nav-panel{transform:translateY(0);opacity:1}
+    nav.mobile-nav a{display:block;padding:8px 12px;border-radius:8px;color:var(--text);font-weight:600}
+    nav.mobile-nav a:hover{background:rgba(46,139,87,0.06);color:var(--secondary)}
+
+    /* Desktop nav (hidden on small screens) */
+    .desktop-nav{display:none}
+
+    /* ================================
+       Hero Section
+       - Full-width hero with soft overlay, animated intro text, CTA
+       - Parallax subtle effect on desktop via transform on scroll (JS)
+       ================================ */
+    .hero{
+      position:relative;overflow:hidden;border-bottom:1px solid rgba(0,0,0,0.03);
+      min-height:380px;display:flex;align-items:center;padding:28px 10px;background-color:var(--primary);
+    }
+    .hero__bg{position:absolute;inset:0;background-image:linear-gradient(rgba(26,71,42,0.45), rgba(26,71,42,0.45)), url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?q=80&w=1600&auto=format&fit=crop&ixlib=rb-4.0.3&s=4e1e1ad2b2d6f4a3b9f6a3b3a8a1c3b1');background-size:cover;background-position:center center;will-change:transform}
+    .hero__content{position:relative;z-index:2;color:white;padding:18px;width:100%;max-width:900px;margin:0 auto;text-align:center}
+    .eyebrow{display:inline-block;background:rgba(255,255,255,0.06);padding:6px 10px;border-radius:999px;font-weight:700;margin-bottom:12px}
+    .hero h1{font-size:clamp(20px,6.5vw,36px);margin:6px 0 10px}
+    .hero p.lead{font-size:clamp(13px,3.6vw,18px);opacity:0.95;max-width:760px;margin:0 auto 18px}
+    .cta-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:12px 18px;border-radius:12px;border:0;cursor:pointer;font-weight:700;box-shadow:var(--card-shadow);transition:transform .18s ease,box-shadow .18s ease}
+    .btn-primary{background:var(--secondary);color:white}
+    .btn-outline{background:transparent;color:white;border:1px solid rgba(255,255,255,0.12)}
+    .btn:hover{transform:translateY(-4px);box-shadow:var(--card-shadow-strong)}
+
+    /* Animated intro text (simple fade/slide loop) */
+    .hero .animated-phrases{height:28px;overflow:hidden;display:inline-block;vertical-align:middle}
+    .hero .animated-phrases .phrase{display:block;transform:translateY(100%);opacity:0;animation:slideUp 9s infinite}
+    .hero .animated-phrases .phrase:nth-child(1){animation-delay:0s}
+    .hero .animated-phrases .phrase:nth-child(2){animation-delay:3s}
+    .hero .animated-phrases .phrase:nth-child(3){animation-delay:6s}
+    @keyframes slideUp{0%{transform:translateY(40%);opacity:0}8%{transform:translateY(0);opacity:1}30%{opacity:1}38%{transform:translateY(-40%);opacity:0}100%{opacity:0}}
+
+    /* ================================
+       Sections: cards, grid & layout
+       - Highlights, courses, testimonials, articles, registration form
+       ================================ */
+    section{padding:20px 10px}
+    .section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px}
+    .section-head h2{margin:0;font-size:18px;color:var(--primary)}
+
+    /* Cards grid */
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .card{background:white;border-radius:12px;padding:14px;box-shadow:var(--card-shadow);transition:transform .18s ease,box-shadow .18s ease}
+    .card:hover{transform:translateY(-6px);box-shadow:var(--card-shadow-strong)}
+    .card h3{margin:0 0 8px}
+    .meta{font-size:13px;color:var(--muted)}
+
+    /* Courses grid - small screens single column, larger becomes grid */
+    .courses-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .course-card{display:flex;gap:12px;align-items:flex-start}
+    .course-card .thumb{width:86px;height:86px;border-radius:10px;flex:0 0 86px;overflow:hidden}
+    .course-card .thumb img{width:100%;height:100%;object-fit:cover}
+    .course-card .info{flex:1}
+    .course-card .enroll{margin-top:10px}
+
+    /* Testimonials slider minimal */
+    .testimonial{display:flex;gap:12px;align-items:center}
+    .testimonial .avatar{width:56px;height:56px;border-radius:999px;overflow:hidden}
+    .testimonial .avatar img{width:100%;height:100%;object-fit:cover}
+    .testimonial .quote{font-style:italic;color:var(--muted)}
+
+    /* Articles list */
+    .articles-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .article-card{display:flex;gap:12px;align-items:flex-start}
+    .article-card .thumb{width:120px;height:80px;border-radius:8px;flex:0 0 120px;overflow:hidden}
+
+    /* Registration form */
+    form.card form{display:block}
+    .form-row{display:flex;gap:8px;flex-wrap:wrap}
+    .form-group{flex:1 1 100%;min-width:0}
+    label{display:block;font-weight:600;font-size:13px;margin-bottom:6px}
+    input,select,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #e6e9eb;background:white;font-size:14px}
+    input:focus,select:focus,textarea:focus{outline:none;box-shadow:0 6px 22px rgba(46,139,87,0.06);border-color:var(--secondary)}
+
+    /* Footer */
+    footer{background:linear-gradient(180deg,#f1f4f1,#f8f9fa);padding:22px 10px;margin-top:18px}
+    .footer-grid{display:grid;grid-template-columns:1fr;gap:12px}
+    .socials a{display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:8px;margin-right:8px;border:1px solid rgba(0,0,0,0.04)}
+    .socials a:hover{transform:translateY(-4px);box-shadow:var(--card-shadow)}
+
+    /* QuickLink section */
+    #quicklink{
+        text-align: center;
+    }
+
+    /* Quick Links Social Media */
+     .quicksocials a{display:inline-flex;align-items:center;justify-content:center;width:90px;height:40px;border-radius:8px;margin-right:8px;border:1px solid rgba(0,0,0,0.04)}
+    .socials a:hover{transform:translateY(-4px);box-shadow:var(--card-shadow)}
+
+    /* Utility */
+    .muted{color:var(--muted)}
+
+    /* ================================
+       Larger screens styles
+       - Reveal desktop nav and multi-column grids
+       ================================ */
+    @media(min-width:800px){
+      .desktop-nav{display:flex;gap:18px;align-items:center}
+      nav.mobile-nav{display:none}
+      .nav-row{padding:14px 20px}
+
+      .hero{min-height:480px}
+      .section-head h2{font-size:20px}
+      .grid{grid-template-columns:repeat(3,1fr)}
+      .courses-grid{grid-template-columns:repeat(3,1fr)}
+      .articles-grid{grid-template-columns:repeat(2,1fr)}
+      .footer-grid{grid-template-columns:2fr 1fr}
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- HEADER: site header with logo, academy name, and hamburger (mobile-first) -->
+  <header class="site-header">
+    <div class="container nav-row">
+      <div class="brand" role="banner">
+        <div class="logo" aria-hidden="true">
+          <!--
+            Logo image: replace src with your "AlTaqwa.jpeg" file path.
+            The image is circular by container and will stay 44x44 on small screens.
+          -->
+          <img src="AlTaqwa.jpeg" alt="Al Taqwa Online University logo" loading="lazy">
+        </div>
+        <div class="site-title">Al Taqwa Online University</div>
+      </div>
+
+      <!-- Desktop navigation (visible on wider screens) -->
+      <nav class="desktop-nav" aria-label="Main navigation">
+        <a href="#home">Home</a>
+        <a href="#courses">Courses</a>
+        <a href="#admissions">Admissions</a>
+        <a href="#faculty">Faculty</a>
+        <a href="#support">Support/FAQs</a>
+        <a href="#contact">Contact</a>
+      </nav>
+
+      <!-- Hamburger: toggles mobile drawer -->
+      <button class="hamburger" aria-expanded="false" aria-controls="mobileNav" id="hamburgerBtn">
+        <span class="bar" aria-hidden="true"></span>
+        <span class="sr-only"></span>
+      </button>
+    </div>
+
+    <!-- Mobile nav drawer (accessible) -->
+    <nav class="mobile-nav" id="mobileNav" aria-hidden="true">
+      <div class="nav-panel" role="menu" aria-orientation="vertical">
+        <a href="#home" role="menuitem">Home</a>
+        <a href="#courses" role="menuitem">Courses</a>
+        <a href="#admissions" role="menuitem">Admissions</a>
+        <a href="#faculty" role="menuitem">Faculty</a>
+        <a href="#support" role="menuitem">Support/FAQs</a>
+        <a href="#contact" role="menuitem">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO: large banner with overlay, animated phrases and CTA -->
+  <main id="home">
+    <section class="hero" aria-label="Hero banner">
+      <div class="hero__bg" id="heroBg" role="presentation"></div>
+      <div class="hero__content container">
+        <span class="eyebrow">Faith • Knowledge • Innovation</span>
+        <h1>
+          Welcome to Al Taqwa Online University
+          <span class="animated-phrases" aria-hidden="true">
+            <span class="phrase">Bringing Deen Online</span>
+            <span class="phrase">Quran, Tajweed & Islamic sciences</span>
+            <span class="phrase">Modern learning with deep tradition</span>
+          </span>
+        </h1>
+        <p class="lead">Join students worldwide in a trusted, modern learning environment grounded in Islamic values. Flexible schedules, expert faculty, and interactive courses designed for the digital age.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#admissions">Enroll Now</a>
+          <a class="btn btn-outline" href="#courses">View Courses</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- HIGHLIGHTS: quick feature cards (three columns on larger screens) -->
+    <section aria-labelledby="highlights" class="container">
+      <div class="section-head">
+        <h2 id="highlights">Why Choose Al Taqwa?</h2>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h3>Scholars & Certified Teachers</h3>
+          <p class="muted">Learn from qualified teachers with chains of transmission and accredited curricula.</p>
+        </article>
+        <article class="card">
+          <h3>Flexible Online Learning</h3>
+          <p class="muted">Live sessions, recorded lessons, and self-paced tracks that fit your schedule.</p>
+        </article>
+        <article class="card">
+          <h3>Balanced Curriculum</h3>
+          <p class="muted">A blend of classical Islamic sciences and contemporary skills for the modern world.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- COURSES: card/grid with hover effects + enroll buttons -->
+    <section id="courses" class="container">
+      <div class="section-head">
+        <h2>Courses</h2>
+        <a href="#courses" class="muted">View all</a>
+      </div>
+      <div class="courses-grid">
+        <!-- Course card template (repeat for each course) -->
+        <article class="card course-card">
+          <div class="thumb"><img src="https://via.placeholder.com/300x300?text=Quran" alt="Quran course" loading="lazy"></div>
+          <div class="info">
+            <h3>Quranic Studies — Beginner to Advanced</h3>
+            <p class="meta">Duration: 12 weeks • Live & Recorded</p>
+            <p>Comprehensive Quran study, tafsir basics, and memorization techniques with tajweed-focused sessions.</p>
+            <div class="enroll"><a class="btn btn-primary" href="#admissions">Enroll</a></div>
+          </div>
+        </article>
+
+        <article class="card course-card">
+          <div class="thumb"><img src="https://via.placeholder.com/300x300?text=Tajweed" alt="Tajweed course" loading="lazy"></div>
+          <div class="info">
+            <h3>The Science of Tajweed</h3>
+            <p class="meta">Duration: 8 weeks • Practice-focused</p>
+            <p>Learn correct articulation, rules of recitation, and exercises to perfect your qira'ah.</p>
+            <div class="enroll"><a class="btn btn-primary" href="#admissions">Enroll</a></div>
+          </div>
+        </article>
+
+        <article class="card course-card">
+          <div class="thumb"><img src="https://via.placeholder.com/300x300?text=Islamic+Studies" alt="Islamic studies" loading="lazy"></div>
+          <div class="info">
+            <h3>Classical Islamic Studies</h3>
+            <p class="meta">Duration: variable • Accredited</p>
+            <p>Hadith, Fiqh, Aqeedah, and Seerah — traditional sciences taught with modern pedagogy.</p>
+            <div class="enroll"><a class="btn btn-primary" href="#admissions">Enroll</a></div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- TESTIMONIALS: slider/carousel -->
+    <section aria-labelledby="testimonials" class="container">
+      <div class="section-head">
+        <h2 id="testimonials">What Students Say</h2>
+        <p class="muted">Real experiences from learners around the world</p>
+      </div>
+      <div class="card" id="testimonialCard">
+        <div class="testimonial" id="testimonialInner">
+          <div class="avatar"><img src="https://via.placeholder.com/200?text=AS" alt="Student avatar" loading="lazy"></div>
+          <div>
+            <p class="quote">"The instructors are patient and deeply knowledgeable. The tajweed course changed my recitation."</p>
+            <p class="meta">— Ayesha S., Pakistan</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ARTICLES: sample articles with images and read-more links -->
+    <section aria-labelledby="articles" class="container">
+      <div class="section-head">
+        <h2 id="articles">Latest Articles</h2>
+        <a class="muted" href="#articles">View all articles</a>
+      </div>
+
+      <div class="articles-grid">
+        <!-- Article 1 -->
+        <article class="card article-card">
+          <div class="thumb"><img src="https://via.placeholder.com/480x320?text=Ethics+in+Digital+Age" alt="Understanding Islamic Ethics in the Digital Age" loading="lazy"></div>
+          <div>
+            <h3>Understanding Islamic Ethics in the Digital Age</h3>
+            <p class="meta">How classical Islamic ethics apply to modern technologies and online learning.</p>
+            <p class="muted">Digital tools bring opportunity and challenge. We explore ethical frameworks grounded in Qur'anic principles and prophetic guidance.</p>
+            <p><a href="#">Read More →</a></p>
+          </div>
+        </article>
+
+        <!-- Article 2 -->
+        <article class="card article-card">
+          <div class="thumb"><img src="https://via.placeholder.com/480x320?text=Tajweed" alt="The Science of Tajweed" loading="lazy"></div>
+          <div>
+            <h3>The Science of Tajweed: Techniques and Practice</h3>
+            <p class="meta">Essential rules and exercises to improve Quranic recitation.</p>
+            <p class="muted">Practical drills, common errors, and teacher-led recitation tips to help learners progress quickly and accurately.</p>
+            <p><a href="#">Read More →</a></p>
+          </div>
+        </article>
+
+        <!-- Article 3 -->
+        <article class="card article-card">
+          <div class="thumb"><img src="https://via.placeholder.com/480x320?text=Online+Learning" alt="Online Learning Best Practices" loading="lazy"></div>
+          <div>
+            <h3>Online Learning Best Practices for Faith-Based Education</h3>
+            <p class="meta">Strategies to improve student success in online Islamic learning.</p>
+            <p class="muted">Creating community, consistent schedules, and spiritual accountability — keys to thriving in online Islamic programs.</p>
+            <p><a href="#">Read More →</a></p>
+          </div>
+        </article>
+
+        <!-- Article 4 -->
+        <article class="card article-card">
+          <div class="thumb"><img src="https://via.placeholder.com/480x320?text=Islam+and+STEM" alt="Integrating Islamic Studies with STEM" loading="lazy"></div>
+          <div>
+            <h3>Integrating Islamic Studies with STEM: New Pathways</h3>
+            <p class="meta">Exploring how Islamic knowledge connects with modern science and technology.</p>
+            <p class="muted">Interdisciplinary programs that encourage ethical technology, environmental stewardship, and innovation grounded in faith.</p>
+            <p><a href="#">Read More →</a></p>
+          </div>
+        </article>
+
+        <!-- Article 5 -->
+        <article class="card article-card">
+          <div class="thumb"><img src="https://via.placeholder.com/480x320?text=Mental+Wellness" alt="Mental Wellness for Students" loading="lazy"></div>
+          <div>
+            <h3>Mental Wellness for Students: Balance Between Knowledge and Wellbeing</h3>
+            <p class="meta">Advice for balancing spiritual and academic life.</p>
+            <p class="muted">Practical tips for maintaining mental and spiritual wellbeing during intense study periods and remote learning.</p>
+            <p><a href="#">Read More →</a></p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- REGISTRATION FORM: visible on homepage, required fields per spec -->
+    <section class="container" aria-labelledby="register">
+      <div class="section-head">
+        <h2 id="register">Register</h2>
+        <p class="muted">Quick registration to start your learning journey</p>
+      </div>
+      <article class="card" style="padding:16px">
+        <form id="registrationForm" action="#" novalidate>
+          <div class="form-row">
+            <div class="form-group" style="flex:0 0 45%">
+              <label for="name">Full Name *</label>
+              <input id="name" name="name" type="text" required placeholder="e.g. Fatima bint Ahmad">
+            </div>
+            <div class="form-group" style="flex:0 0 20%">
+              <label for="age">Age *</label>
+              <input id="age" name="age" type="number" min="6" max="120" required placeholder="Age">
+            </div>
+            <div class="form-group" style="flex:0 0 35%">
+              <label for="gender">Gender *</label>
+              <select id="gender" name="gender" required>
+                <option value="">Select</option>
+                <option>Female</option>
+                <option>Male</option>
+                <option>Prefer not to say</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-top:10px">
+            <div class="form-group" style="flex:1 1 50%">
+              <label for="email">Email *</label>
+              <input id="email" name="email" type="email" required placeholder="you@example.com">
+            </div>
+            <div class="form-group" style="flex:1 1 50%">
+              <label for="phone">Phone *</label>
+              <input id="phone" name="phone" type="tel" required placeholder="e.g. +44 7123 456789">
+            </div>
+          </div>
+
+          <div class="form-row" style="margin-top:10px">
+            <div class="form-group" style="flex:1 1 100%">
+              <label for="message">Message (optional)</label>
+              <textarea id="message" name="message" rows="4" placeholder="Any questions or details you want to share"></textarea>
+            </div>
+          </div>
+
+          <div style="margin-top:12px;display:flex;gap:12px;flex-wrap:wrap">
+            <button type="submit" class="btn btn-primary">Submit Registration</button>
+            <button type="reset" class="btn btn-outline">Reset</button>
+          </div>
+        </form>
+      </article>
+    </section>
+
+    <!-- ABOUT US: mission, vision, values -->
+    <section id="about" class="container" aria-labelledby="aboutHeading">
+      <div class="section-head">
+        <h2 id="aboutHeading">About Us</h2>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Mission</h3>
+          <p class="muted">To deliver accessible, authentic Islamic education online that preserves scholarly standards and nurtures spiritual growth.</p>
+        </article>
+        <article class="card">
+          <h3>Vision</h3>
+          <p class="muted">A global community of informed, compassionate Muslims who apply knowledge ethically and contribute positively to society.</p>
+        </article>
+        <article class="card">
+          <h3>Values</h3>
+          <p class="muted">Integrity, authenticity, excellence, compassion, and lifelong learning.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ADMISSIONS: step-by-step guide and eligibility -->
+    <section id="admissions" class="container" aria-labelledby="admissionsHeading">
+      <div class="section-head">
+        <h2 id="admissionsHeading">Admissions</h2>
+        <p class="muted">Simple steps to apply</p>
+      </div>
+      <article class="card">
+        <h3>How to Apply</h3>
+        <ol>
+          <li>Register using the quick form above or the full application form in Admissions page.</li>
+          <li>Provide basic documents (ID, previous study if applicable).</li>
+          <li>Attend an orientation & placement assessment (online).</li>
+          <li>Receive acceptance letter and choose class schedule.</li>
+        </ol>
+        <h4>Eligibility</h4>
+        <p class="muted">Students of all ages are welcome. Some advanced tracks require prior knowledge; check each course page for details.</p>
+      </article>
+    </section>
+
+    <!-- FACULTY: profile cards with pictures and short bios -->
+    <section id="faculty" class="container" aria-labelledby="facultyHeading">
+      <div class="section-head">
+        <h2 id="facultyHeading">Our Faculty</h2>
+        <p class="muted">Experienced scholars & teachers</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:86px;height:86px;border-radius:999px;overflow:hidden"><img src="https://via.placeholder.com/200?text=Sheikh" alt="Sheikh profile" loading="lazy"></div>
+            <div>
+              <h3>Sheikh Ahmad Al-Murabbi</h3>
+              <p class="muted">Specialist in Tafsir and Hadith with 15+ years teaching experience.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:86px;height:86px;border-radius:999px;overflow:hidden"><img src="https://via.placeholder.com/200?text=Ustadhah" alt="Ustadhah profile" loading="lazy"></div>
+            <div>
+              <h3>Ustadhah Mariam</h3>
+              <p class="muted">Expert in Tajweed & Quranic pedagogy, focusing on interactive teaching methods for remote learners.</p>
+            </div>
+          </div>
+        </article>
+
+        <article class="card">
+          <div style="display:flex;gap:12px;align-items:center">
+            <div style="width:86px;height:86px;border-radius:999px;overflow:hidden"><img src="https://via.placeholder.com/200?text=Dr" alt="Dr profile" loading="lazy"></div>
+            <div>
+              <h3>Dr. Yusuf Karim</h3>
+              <p class="muted">Interdisciplinary researcher bridging Islamic studies and modern sciences.</p>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- SUPPORT / FAQs -->
+    <section id="support" class="container" aria-labelledby="supportHeading">
+      <div class="section-head">
+        <h2 id="supportHeading">Support & FAQs</h2>
+        <p class="muted">Answers to common questions</p>
+      </div>
+      <article class="card">
+        <h3>Frequently Asked Questions</h3>
+        <details>
+          <summary>Do courses include live interaction?</summary>
+          <p class="muted">Yes — most courses include weekly live sessions in addition to recorded material.</p>
+        </details>
+        <details>
+          <summary>Are certificates provided?</summary>
+          <p class="muted">Yes — students who complete courses receive certificates of completion; accredited tracks provide additional documentation.</p>
+        </details>
+        <details>
+          <summary>What payment methods are accepted?</summary>
+          <p class="muted">We accept major international payment methods; local payment guides are available in Admissions.</p>
+        </details>
+      </article>
+    </section>
+
+    <!-- CONTACT: form, details, map placeholder, and social links -->
+    <section id="contact" class="container" aria-labelledby="contactHeading">
+      <div class="section-head">
+        <h2 id="contactHeading">Contact</h2>
+        <p class="muted">Get in touch or visit our online offices</p>
+      </div>
+
+      <div class="grid">
+        <article class="card">
+          <h3>Contact Form</h3>
+          <form id="contactForm" action="#" novalidate>
+            <div class="form-row">
+              <div class="form-group"><label for="c_name">Full Name *</label><input id="c_name" required></div>
+              <div class="form-group"><label for="c_age">Age *</label><input id="c_age" type="number" min="6" required></div>
+            </div>
+            <div class="form-row" style="margin-top:8px">
+              <div class="form-group"><label for="c_gender">Gender *</label><select id="c_gender" required><option value="">Select</option><option>Female</option><option>Male</option><option>Prefer not to say</option></select></div>
+              <div class="form-group"><label for="c_email">Email *</label><input id="c_email" type="email" required></div>
+            </div>
+            <div class="form-row" style="margin-top:8px">
+              <div class="form-group" style="flex:1"><label for="c_phone">Phone *</label><input id="c_phone" required></div>
+            </div>
+            <div class="form-row" style="margin-top:8px">
+              <div class="form-group" style="flex:1"><label for="c_message">Message (optional)</label><textarea id="c_message" rows="3"></textarea></div>
+            </div>
+            <div style="margin-top:12px"><button type="submit" class="btn btn-primary">Send Message</button></div>
+          </form>
+        </article>
+
+        <article class="card">
+          <h3>Details & Map</h3>
+          <p class="muted">Email: <a href="mailto:info@altaqwa.edu">info@altaqwa.edu</a><br>Phone: +000 000 0000</p>
+          <!-- Map placeholder: replace with an embedded map iframe if preferred -->
+          <div style="width:100%;height:180px;border-radius:8px;overflow:hidden;border:1px solid #e6e9eb;margin-top:8px;background:url('https://via.placeholder.com/800x400?text=Map') center/cover no-repeat">
+            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d448196.5258694167!2d76.7635779835684!3d28.64368473473721!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x390cfd5b347eb62d%3A0x37205b715389640!2sDelhi!5e0!3m2!1sen!2sin!4v1758095763103!5m2!1sen!2sin" width="100%" height="100%" style="border: 1px;;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+          </div>
+
+          <div style="margin-top:12px">
+            <h4>Follow Us On</h4>
+            <div class="socials">
+              <a href="#" aria-label="Instagram"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="4" stroke="currentColor" stroke-width="1.2"/><circle cx="12" cy="12" r="3.2" stroke="currentColor" stroke-width="1.2"/><circle cx="17.5" cy="6.5" r="0.4" fill="currentColor"/></svg></a>
+              <a href="#" aria-label="Facebook"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 12.1c0-5.5-4.5-9.9-10-9.9S2 6.6 2 12.1c0 4.9 3.6 8.9 8.3 9.8v-6.9H8.6v-2.9h1.7V9.6c0-1.7 1-2.6 2.5-2.6.7 0 1.4.1 1.4.1v1.6h-.8c-.8 0-1 .5-1 1.1v1.4h1.8l-.3 2.9h-1.5v6.9C18.4 21 22 16.9 22 12.1z" stroke="currentColor" stroke-width="0.6"/></svg></a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- FOOTER: About, quick links, socials, copyright -->
+  <footer>
+    <div class="container footer-grid">
+      <div>
+        <h3>About Al Taqwa Online University</h3>
+        <p class="muted">Al Taqwa Online University provides accessible and authentic Islamic education to learners worldwide, blending classical scholarship with modern online pedagogy.</p>
+      </div>
+      <div id="quicklink">
+        <h4>Quick Links</h4>
+        <p><a href="#home">Home</a> • <a href="#courses">Courses</a> • <a href="#admissions">Admissions</a> • <a href="#faculty">Faculty</a></p>
+        <div style="margin-top:10px" class="quicksocials">
+          <a href="#" aria-label="Instagram">Instagram</a>
+          <a href="#" aria-label="Facebook">Facebook</a>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:14px;color:var(--muted);font-size:13px">© <span id="year"></span> Al Taqwa Online University — All rights reserved.</div>
+  </footer>
+
+  <!-- Minimal JavaScript: interactivity, hamburger, testimonial slider, simple parallax for hero -->
+  <script>
+    // Insert current year in footer
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Hamburger toggle for mobile nav
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const mobileNav = document.getElementById('mobileNav');
+    hamburgerBtn.addEventListener('click', ()=>{
+      const open = mobileNav.classList.toggle('open');
+      hamburgerBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+      mobileNav.setAttribute('aria-hidden', open ? 'false' : 'true');
+    });
+
+    // Simple testimonial slider (rotates sample testimonials)
+    const testimonials = [
+      {text: 'The instructors are patient and deeply knowledgeable. The tajweed course changed my recitation.', meta: '— Ayesha S., Pakistan'},
+      {text: 'Flexible scheduling allowed me to keep working while learning. Highly recommended.', meta: '— Omar H., UK'},
+      {text: 'A beautiful balance of tradition and technology. The teachers are excellent.', meta: '— Fatimah R., Indonesia'},
+    ];
+    let tIndex = 0;
+    const testimonialInner = document.getElementById('testimonialInner');
+    function renderTestimonial(i){
+      const t = testimonials[i];
+      testimonialInner.innerHTML = `\n        <div class="avatar"><img src="https://via.placeholder.com/200?text=${encodeURIComponent(t.meta.split(',')[0].replace(/[^A-Za-z ]/g,''))}" alt="student avatar" loading="lazy"></div>\n        <div>\n          <p class="quote">"${t.text}"</p>\n          <p class="meta">${t.meta}</p>\n        </div>`;
+    }
+    renderTestimonial(0);
+    setInterval(()=>{ tIndex = (tIndex+1) % testimonials.length; renderTestimonial(tIndex); }, 4500);
+
+    // Simple parallax effect on desktop screens for hero background
+    const heroBg = document.getElementById('heroBg');
+    window.addEventListener('scroll', ()=>{
+      if(window.innerWidth > 800){
+        const offset = window.scrollY * 0.12;
+        heroBg.style.transform = `translateY(${offset}px) scale(1.03)`;
+      } else {
+        heroBg.style.transform = 'none';
+      }
+    }, {passive:true});
+
+    // Simple client-side validation for registration form (friendly notices)
+    document.getElementById('registrationForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      const form = e.target;
+      if(!form.checkValidity()){
+        alert('Please fill in all required fields correctly.');
+        return;
+      }
+      // Simulate submission: in real deployment, send to server via fetch/AJAX
+      alert('Thank you! Your registration has been received. We will contact you via email.');
+      form.reset();
+    });
+
+    // Accessibility: close mobile nav when clicking outside
+    document.addEventListener('click', (ev)=>{
+      if(!ev.target.closest('.mobile-nav') && !ev.target.closest('#hamburgerBtn') && mobileNav.classList.contains('open')){
+        mobileNav.classList.remove('open');
+        hamburgerBtn.setAttribute('aria-expanded','false');
+        mobileNav.setAttribute('aria-hidden','true');
+      }
+    });
+  </script>
+</body>
+</html>
